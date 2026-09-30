@@ -38,9 +38,11 @@ export class NetworkSession {
     const youtube = url.hostname === 'www.youtube.com' || url.hostname === 'youtube.com' || url.hostname.endsWith('.googlevideo.com');
     const media = !!input.headers?.Range;
     const platform = youtube || /(^|\.)(bilibili\.com|hdslb\.com|bilivideo\.com|bilivideo\.cn|biliapi\.net)$/.test(url.hostname);
-    if (!platform || url.hostname === 'passport.bilibili.com' || url.pathname.endsWith('/nav')) return this.raw(input, signal);
-    const cacheable = !media && (youtube || /\/video\/|\/x\/web-interface\/view|\/x\/player\//.test(url.pathname));
-    const key = JSON.stringify([input.url, input.body, input.headers]);
+    if (!platform || url.hostname === 'passport.bilibili.com') return this.raw(input, signal);
+    const cacheable = !media && (youtube || /\/video\/|\/x\/web-interface\/(view|nav)|\/x\/player\//.test(url.pathname));
+    const cacheUrl = new URL(input.url);
+    if (url.hostname === 'api.bilibili.com' && url.pathname === '/x/player/wbi/v2') { cacheUrl.searchParams.delete('wts'); cacheUrl.searchParams.delete('w_rid'); }
+    const key = JSON.stringify([cacheUrl.href, input.body, input.headers]);
     const lane = media ? 1 : 0;
     await this.acquire(lane, signal);
     try {
@@ -57,12 +59,13 @@ export class NetworkSession {
       signal.throwIfAborted();
       if (reply.status === 429) this.cooldown.set(service, Date.now() + retryDelay(reply.headers['retry-after'], 0));
       let usable = reply.status >= 200 && reply.status < 300;
-      if (youtube && !media) {
+      if (!media) {
         const body = decode(reply);
-        if (/\/sorry\//.test(body) && /captcha|unusual traffic/i.test(body)) { this.pause(); throw new YouTubeChallenge(); }
+        if (youtube && /\/sorry\//.test(body) && /captcha|unusual traffic/i.test(body)) { this.pause(); throw new YouTubeChallenge(); }
         try {
           const data = JSON.parse(body) as Record<string, unknown>;
-          rejectChallenge(data);
+          if (youtube) rejectChallenge(data);
+          if (typeof data.code === 'number' && data.code !== 0) usable = false;
           if (data.playabilityStatus && (data.playabilityStatus as { status?: string }).status !== 'OK') usable = false;
         } catch (error) { if (error instanceof YouTubeChallenge) { this.pause(); throw error; } }
       }

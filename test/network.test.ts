@@ -48,3 +48,11 @@ test('a short 429 cooldown is honored before one bounded retry', async () => {
   const result = await request(async () => { times.push(Date.now()); return times.length === 1 ? { ...reply({}, 429), headers: { 'retry-after': '1' } } : reply({ ok: true }); }, signal(), { url: 'https://www.youtube.com/watch?v=fixture' }, 1);
   assert.equal(result.status, 200); assert.equal(times.length, 2); assert.ok(times[1] - times[0] >= 950);
 });
+
+test('signed Bilibili metadata ignores changing signature timestamps but isolates accounts', async () => {
+  let calls = 0;
+  const net = new NetworkSession(async () => { calls++; return reply({ code: 0, data: { subtitle: {} } }); }, 0);
+  const input = (stamp: number, cookie: string) => ({ url: `https://api.bilibili.com/x/player/wbi/v2?bvid=BVfixture&cid=1&wts=${stamp}&w_rid=signature${stamp}`, headers: { Cookie: cookie } });
+  await net.transport(input(1, 'account-a'), signal()); await net.transport(input(2, 'account-a'), signal()); assert.equal(calls, 1);
+  await net.transport(input(3, 'account-b'), signal()); assert.equal(calls, 2);
+});

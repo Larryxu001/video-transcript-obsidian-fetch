@@ -2,7 +2,7 @@
 
 ## Automated and build validation
 
-- 108 tests pass locally, including real plugin orchestration with a simulated vault, caption parsing, source validation, range assembly, language preservation, legacy settings migration, account UI, serial/paced metadata, four-request media concurrency, cache reuse, forced URL refresh, short/long rate-limit waits and immediate challenge pause.
+- 109 tests pass locally, including real plugin orchestration with a simulated vault, caption parsing, source validation, range assembly, language preservation, legacy settings migration, account UI, serial/paced metadata, four-request media concurrency, cache reuse, forced URL refresh, short/long rate-limit waits and immediate challenge pause.
 - New durability cases verify restart resume without replaying completed notes/chunks, note-write intent recovery, prevention of provider POST when checkpoint persistence fails, explicit approval of uncertain paid requests, and reuse of decoded audio after an approved retry.
 - TypeScript passes. Official ESLint rules run with `--max-warnings 0`: no errors or warnings. Brand/acronym spelling is configured, not suppressed.
 - Linux/Windows CI and published artifacts must be verified against the final commit before release publication. See the repository Actions page for the final result.
