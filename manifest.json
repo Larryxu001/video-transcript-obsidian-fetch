@@ -1,0 +1,10 @@
+{
+  "id": "video-transcript-fetch",
+  "name": "Video Transcript Fetch",
+  "version": "3.1.0",
+  "minAppVersion": "1.13.0",
+  "description": "Save Bilibili and YouTube transcripts as notes, using optional speech recognition when captions are unavailable.",
+  "author": "Larry",
+  "isDesktopOnly": true,
+  "authorUrl": "https://github.com/jackiexu001/video-transcript-fetch"
+}

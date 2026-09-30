@@ -1,0 +1,3 @@
+.vtf-next-urls { width: 100%; resize: vertical; }
+.vtf-next-qr { display: flex; justify-content: center; }
+.vtf-next-qr canvas { max-width: 100%; height: auto; }

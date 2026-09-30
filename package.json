@@ -1,0 +1,26 @@
+{
+  "name": "video-transcript-fetch",
+  "version": "3.1.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --experimental-strip-types --import ./test/setup.mjs --test test/*.test.ts",
+    "check": "tsc --noEmit",
+    "build": "npm run check && node esbuild.config.mjs",
+    "lint": "eslint src --max-warnings 0",
+    "package": "npm run build && node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "esbuild": "0.25.5",
+    "eslint": "10.0.0",
+    "eslint-plugin-obsidianmd": "0.4.2",
+    "obsidian": "1.13.1",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.70.0"
+  },
+  "dependencies": {
+    "qrcode-generator": "2.0.4"
+  }
+}
