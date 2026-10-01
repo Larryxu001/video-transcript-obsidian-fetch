@@ -1,3 +1,10 @@
+# 3.1.3
+
+- Rename the display name to Video Caption Fetch, retaining the existing plugin ID and preferences.
+- Correct repository links after the GitHub account rename and point the author URL to Larry Xu’s profile.
+- Attest CI-built install files with GitHub build provenance; publish only main.js, manifest.json and styles.css.
+- Clarify optional vault enumeration and clipboard behavior in the user guide.
+
 # 3.1.2
 
 - Organize settings with native Note properties and Advanced sub-pages.

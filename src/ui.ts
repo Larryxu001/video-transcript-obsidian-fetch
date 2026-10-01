@@ -128,9 +128,9 @@ export class TranscriptSettings extends PluginSettingTab {
     definitions.push({ type: 'page', name: 'Note properties', desc: 'Choose which video details to save and customize their property names.', items: [properties] });
     definitions.push({ type: 'page', name: 'Advanced', desc: 'Folder shortcuts, duplicate matching and recognition performance.', items: advanced });
     heading('Help');
-    row('User guide', setting => { setting.addButton(button => button.setButtonText('Open guide').onClick(() => window.open('https://github.com/jackiexu001/video-transcript-obsidian-fetch#readme'))); }, 'Setup, naming templates, privacy and troubleshooting.');
-    row('Report a problem', setting => { setting.addButton(button => button.setButtonText('Report issue').onClick(() => window.open('https://github.com/jackiexu001/video-transcript-obsidian-fetch/issues'))); }, 'Include the plugin version and error message. Never share API keys or account cookies.');
-    row('Video Transcript Fetch', () => {}, `Version ${this.host.manifest.version} · Larry Xu`);
+    row('User guide', setting => { setting.addButton(button => button.setButtonText('Open guide').onClick(() => window.open('https://github.com/Larryxu001/video-transcript-obsidian-fetch#readme'))); }, 'Setup, naming templates, privacy and troubleshooting.');
+    row('Report a problem', setting => { setting.addButton(button => button.setButtonText('Report issue').onClick(() => window.open('https://github.com/Larryxu001/video-transcript-obsidian-fetch/issues'))); }, 'Include the plugin version and error message. Never share API keys or account cookies.');
+    row('Video Caption Fetch', () => {}, `Version ${this.host.manifest.version} · Larry Xu`);
     return definitions;
   }
 }

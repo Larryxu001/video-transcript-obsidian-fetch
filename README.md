@@ -1,10 +1,10 @@
-# Video Transcript Fetch
+# Video Caption Fetch
 
 Created by **Larry Xu**.
 
 Import YouTube and Bilibili transcripts into Obsidian notes. Read platform captions first, then optionally transcribe unavailable captions with Groq or OpenAI. Preserve the original speech: no automatic translation or summarization.
 
-Desktop only · Obsidian 1.13.0+ · MIT · Community directory submission candidate
+Desktop only · Obsidian 1.13.0+ · MIT
 
 ## Use
 
@@ -12,7 +12,7 @@ Common settings are on the main page. Open **Note properties** to choose video d
 
 For speech recognition, set the switch, provider, API key and model, then click **Save and apply**. Saving does not test or charge the API. Resume a paused import after saving.
 
-1. Install the plugin and open **Settings → Video Transcript Fetch**.
+1. Install the plugin and open **Settings → Video Caption Fetch**.
 2. For Bilibili captions that require an account, choose **Sign in with QR code**, scan in the Bilibili app and confirm. A successful account check shows **Signed in**, your name and UID.
 3. Run **Import video transcript** from the command palette or ribbon. Paste one URL per line (up to 100 per batch).
 4. Keep **Create a new note** enabled for separate files, or disable it to insert at the selection in the active Markdown note. Folder templates, filename templates, timestamps, metadata fields and language preferences are configurable.
@@ -34,13 +34,13 @@ A node/IP change may restore access, but is not an automatic plugin feature. If 
 
 ## Install before directory approval
 
-Download `main.js`, `manifest.json`, and `styles.css` from the [release](https://github.com/jackiexu001/video-transcript-obsidian-fetch/releases). Put all three in:
+Download `main.js`, `manifest.json`, and `styles.css` from the [release](https://github.com/Larryxu001/video-transcript-obsidian-fetch/releases). Put all three in:
 
 ```text
 <Vault>/.obsidian/plugins/video-transcript-fetch/
 ```
 
-Reload Obsidian and enable **Video Transcript Fetch**. Use a disposable vault first. A ZIP is provided for convenience; extract its files rather than placing the ZIP in the plugin folder.
+Reload Obsidian and enable **Video Caption Fetch**. Use a disposable vault first. Download the three individual release files; no ZIP is required.
 
 When upgrading, replace only these three files **in the existing plugin directory**. Keep its `data.json`; it contains your settings, Bilibili session and progress. Creating a separate version-named directory without moving settings loses the visible login state. Do not enable two copies with the same plugin ID. Legacy settings from the previous video-transcript implementation are migrated when its data file is retained.
 
@@ -79,3 +79,11 @@ npm run package
 Node.js 22.18+ is required for development. CI validates on Linux and Windows; live host evidence is macOS only. See [ACCEPTANCE.md](ACCEPTANCE.md) for exact evidence, [REVIEW.md](REVIEW.md) for the source/security review, and [PROVENANCE.md](PROVENANCE.md) for implementation history. Tests and similarity checks are not proof of directory eligibility. Obsidian makes the final publication decision.
 
 Application code is MIT licensed. The bundled QR library's MIT attribution is retained in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). No legacy plugin bundle is included.
+
+## Permissions
+
+Duplicate checking lists Markdown notes and reads their cached properties only when **Skip previously imported videos** is enabled. This information stays in your vault.
+
+Clipboard access occurs only when you open the import dialog or invoke the clipboard import command, and only when **Allow clipboard access** is enabled. Disable it to paste video links manually. Clipboard contents are not sent to a recognition service.
+
+The display name changed to **Video Caption Fetch** in 3.1.3. The plugin ID remains `video-transcript-fetch`, preserving installed settings and updates. Published install files have GitHub build provenance attestations. License and dependency notices remain in this repository; the dependency notice is also included in `main.js`.
