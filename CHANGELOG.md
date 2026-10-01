@@ -1,3 +1,17 @@
+# 3.1.2
+
+- Organize settings with native Note properties and Advanced sub-pages.
+- Use readable property labels, shorter descriptions and provider-specific key fields.
+- Add user guide and issue links, remove the development diagnostic command and internal client lists from errors.
+- Keep saved preferences, command IDs for existing workflows, and transcript behavior compatible.
+
+# 3.1.1
+
+- Add an explicit Save and apply button for speech recognition configuration, with validation and save-result feedback.
+- Set the plugin author to Larry Xu.
+
+- Resume paused imports using the current speech-recognition switch, provider, model and API keys, so correcting settings takes effect without discarding progress.
+
 # Changelog
 
 ## 3.1.0

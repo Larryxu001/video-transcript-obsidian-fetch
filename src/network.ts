@@ -2,7 +2,7 @@ import { AccessPaused, RateLimited, retryDelay, delay, decode } from './http.ts'
 import type { HttpReply, Transport } from './http.ts';
 
 export class YouTubeChallenge extends AccessPaused {
-  constructor() { super('YouTube requires browser verification for this connection. The queue is paused. Open the video in your browser, resolve access, then resume. No further clients were tried.'); }
+  constructor() { super('YouTube requires browser verification for this connection. The queue is paused. Open the video in your browser, resolve access, then resume.'); }
 }
 export function rejectChallenge(data: Record<string, unknown>): void {
   const status = data.playabilityStatus as { reason?: string } | undefined;

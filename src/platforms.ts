@@ -138,9 +138,8 @@ export class Platforms {
   }
   private async youtube(ref: VideoRef): Promise<Video> {
     let page = '';
-    const failures: string[] = [];
     try { page = decode(await request(this.transport, this.signal, { url: watchUrl(ref), headers: { 'User-Agent': browserAgent, 'Accept-Language': 'en-US,en;q=0.9' } })); }
-    catch (error) { this.signal.throwIfAborted(); if (error instanceof YouTubeChallenge || error instanceof RateLimited) throw error; failures.push(error instanceof Error ? error.message : 'Watch page request failed.'); }
+    catch (error) { this.signal.throwIfAborted(); if (error instanceof YouTubeChallenge || error instanceof RateLimited) throw error; }
     const visitor = page.match(/"(?:VISITOR_DATA|visitorData)"\s*:\s*"([^"\n]+)"/)?.[1];
     if (visitor) { try { this.visitors.set(ref.id, JSON.parse(`"${visitor}"`) as string); } catch { /* Ignore malformed visitor data. */ } }
     const webBody = embeddedObject(page, 'ytInitialPlayerResponse');
@@ -153,16 +152,14 @@ export class Platforms {
         if (candidate.videoDetails && (!object(candidate.playabilityStatus).status || object(candidate.playabilityStatus).status === 'OK')) {
           players.push(candidate);
           if (youtubeTracks(candidate).length) break;
-        } else failures.push(`${client}: ${text(object(candidate.playabilityStatus).reason || object(candidate.playabilityStatus).status, 'No video details')}`);
-      } catch (error) { this.signal.throwIfAborted(); if (error instanceof YouTubeChallenge || error instanceof RateLimited) throw error; failures.push(`${client}: ${error instanceof Error ? error.message : 'Request failed'}`); }
+        }
+      } catch (error) { this.signal.throwIfAborted(); if (error instanceof YouTubeChallenge || error instanceof RateLimited) throw error; }
     }
     if (webBody?.videoDetails) players.push(webBody);
     this.captionPlayers.set(ref.id, players);
     const body = players[0];
     if (!body) {
-      const pageReason = text(object(webBody?.playabilityStatus).reason);
-      if (pageReason) failures.push(`Watch page: ${pageReason}`);
-      throw new Error(`YouTube video information could not be retrieved. ${failures.join('; ')}. If YouTube asks you to confirm you are not a bot, check video access and your proxy connection. No audio was uploaded.`);
+      throw new Error('Could not access this YouTube video. Check that it plays in your browser and that your connection is working, then resume the import.');
     }
     const detail = object(body.videoDetails);
     const micro = object(object(body.microformat || webBody?.microformat).playerMicroformatRenderer);
@@ -230,6 +227,6 @@ export class Platforms {
     if (new URL(track.url).searchParams.get('kind') === 'asr' || new URL(track.url).searchParams.get('caps') === 'asr') publicTrack.searchParams.set('caps', 'asr');
     const publicResult = await fetchTrack({ ...track, url: publicTrack.href });
     if (publicResult.length) return publicResult;
-    throw new CaptionUnavailable('YouTube returned no readable captions after trying alternate clients and formats. Check video access or enable speech recognition.');
+    throw new CaptionUnavailable('Could not read this video’s captions. Try again later or enable speech recognition in settings.');
   }
 }

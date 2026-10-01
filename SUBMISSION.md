@@ -1,9 +1,10 @@
 # Community directory submission
 
-- Repository: https://github.com/jackiexu001/video-transcript-fetch
+- Repository: https://github.com/jackiexu001/video-transcript-obsidian-fetch
 - Plugin ID: `video-transcript-fetch`
 - Name: Video Transcript Fetch
-- Version/tag: `3.1.0`
+- Candidate version/tag: `3.1.2` (release prepared for submission)
+- Author: Larry Xu
 - Minimum Obsidian: `1.13.0`; desktop only.
 - Description: Save Bilibili and YouTube transcripts as notes, using optional speech recognition when captions are unavailable.
 - Category suggestion: Import / integration.

@@ -230,3 +230,66 @@ test('checkpoint storage failure prevents a paid request from being sent', async
   const f = fixture(); await f.plugin.onload(); f.plugin.saveData = async () => { throw Error('Disk full'); };
   await f.plugin.run(options); assert.equal(f.contents.size, 0); assert.equal(f.captionReads(), 0);
 });
+
+for (const restart of [false, true]) test(`resuming uses the current recognition switch and provider after settings change (restart=${restart})`, async () => {
+  const f = fixture(); await f.plugin.onload(); f.plugin.network.spacing = 0;
+  f.plugin.settings.provider = 'openai';
+  let audioCalls = 0, paidCalls = 0;
+  (globalThis as unknown as { requestFixture: unknown }).requestFixture = async (input: { url: string }) => {
+    if (input.url.includes('groq.com') || input.url.includes('openai.com')) paidCalls++;
+    if (input.url.includes('playurl')) audioCalls++;
+    const data = input.url.includes('/video/') ? 'window.__INITIAL_STATE__={"videoData":{"cid":1,"duration":60}}' : JSON.stringify({ code: 0, data: { subtitle: { subtitles: [] } } });
+    return { status: 200, headers: {}, arrayBuffer: new TextEncoder().encode(data).buffer };
+  };
+  await f.plugin.run({ ...options, urls: ['https://www.bilibili.com/video/BV1D3h46BEax/'] });
+  assert.ok(f.plugin.progress); assert.equal(audioCalls, 0);
+  f.plugin.settings.recognition = true; f.plugin.settings.provider = 'groq'; f.plugin.settings.groqKey = 'fixture';
+  await f.plugin.persist();
+  let plugin = f.plugin;
+  if (restart) { plugin = new Plugin(); plugin.app = f.app; plugin.data = structuredClone(f.plugin.saved); await plugin.onload(); plugin.network.spacing = 0; }
+  await plugin.resume();
+  assert.equal(audioCalls, 1); assert.equal(paidCalls, 0);
+  plugin.settings.recognition = false;
+  await plugin.resume(); assert.equal(audioCalls, 1);
+});
+
+test('recognition credentials are staged until confirmation and failed saves restore active settings', async () => {
+  const f = fixture(); await f.plugin.onload();
+  Setting.rows = []; new TranscriptSettings(f.app, f.plugin).display();
+  const row = (name: string) => Setting.rows.find((r: { name: string }) => r.name === name);
+  row('Enable speech recognition').controls[0].change(true);
+  row('Groq API key').controls[0].change(' fixture-key ');
+  row('Model').controls[0].change(' test-model ');
+  assert.equal(f.plugin.settings.recognition, false); assert.equal(f.plugin.settings.groqKey, '');
+  await row('Save recognition settings').buttons[0].click();
+  assert.equal(f.plugin.saved.recognition, true); assert.equal(f.plugin.saved.groqKey, 'fixture-key'); assert.equal(f.plugin.saved.model, 'test-model');
+  row('Groq API key').controls[0].change('replacement');
+  f.plugin.persist = async () => { throw new Error('disk full'); };
+  await row('Save recognition settings').buttons[0].click();
+  assert.equal(f.plugin.settings.groqKey, 'fixture-key'); assert.match(row('Save recognition settings').description, /Could not save/);
+  row('Provider').controls[0].change('openai');
+  await row('Save recognition settings').buttons[0].click();
+  assert.match(row('Save recognition settings').description, /Enter an API key/);
+});
+
+test('release settings separate advanced pages, label properties and expose only the selected provider key', async () => {
+  const f = fixture(); await f.plugin.onload();
+  const tab = new TranscriptSettings(f.app, f.plugin);
+  let definitions = tab.getSettingDefinitions();
+  const pages = definitions.filter((item: { type: string }) => item.type === 'page');
+  assert.deepEqual(pages.map((item: { name: string }) => item.name), ['Note properties', 'Advanced']);
+  const rootNames = definitions.filter((item: { type: string }) => item.type === 'group').flatMap((group: { items: any[] }) => group.items.map(item => item.name));
+  assert.ok(!rootNames.includes('Audio segment length')); assert.ok(!rootNames.includes('videoId')); assert.ok(!rootNames.includes('Import progress'));
+  const properties = pages[0].items[0].items;
+  assert.ok(properties.some((item: { name: string }) => item.name === 'Video ID'));
+  const recognition = definitions.find((group: { heading: string }) => group.heading === 'Speech recognition').items;
+  assert.equal(recognition.find((item: { name: string }) => item.name === 'Groq API key').visible(), true);
+  assert.equal(recognition.find((item: { name: string }) => item.name === 'OpenAI API key').visible(), false);
+  const provider = new Setting(); recognition.find((item: { name: string }) => item.name === 'Provider').render(provider);
+  provider.controls[0].change('openai');
+  definitions = tab.getSettingDefinitions();
+  const updated = definitions.find((group: { heading: string }) => group.heading === 'Speech recognition').items;
+  assert.equal(updated.find((item: { name: string }) => item.name === 'OpenAI API key').visible(), true);
+  assert.equal(updated.find((item: { name: string }) => item.name === 'Groq API key').visible(), false);
+  assert.ok(!f.plugin.commands.some((command: { id: string }) => command.id.includes('diagnos')));
+});

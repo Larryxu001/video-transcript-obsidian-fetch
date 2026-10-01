@@ -1,13 +1,19 @@
-# Acceptance evidence — 3.1.0
+# Acceptance evidence — 3.1.2
 
 ## Automated and build validation
 
-- 109 tests pass locally, including real plugin orchestration with a simulated vault, caption parsing, source validation, range assembly, language preservation, legacy settings migration, account UI, serial/paced metadata, four-request media concurrency, cache reuse, forced URL refresh, short/long rate-limit waits and immediate challenge pause.
+- 113 tests pass locally, including real plugin orchestration with a simulated vault, caption parsing, source validation, range assembly, language preservation, legacy settings migration, account UI, serial/paced metadata, four-request media concurrency, cache reuse, forced URL refresh, short/long rate-limit waits and immediate challenge pause.
 - New durability cases verify restart resume without replaying completed notes/chunks, note-write intent recovery, prevention of provider POST when checkpoint persistence fails, explicit approval of uncertain paid requests, and reuse of decoded audio after an approved retry.
 - TypeScript passes. Official ESLint rules run with `--max-warnings 0`: no errors or warnings. Brand/acronym spelling is configured, not suppressed.
 - Linux/Windows CI and published artifacts must be verified against the final commit before release publication. See the repository Actions page for the final result.
 
-## Real Obsidian host checks
+## Current settings checks (3.1.2)
+
+- Real Obsidian controls rendered 37 rows across the main page and two declared sub-pages; exactly one password field was visible for the selected provider. Save and apply was present. This checks host control rendering, not a full visual/navigation acceptance of every page.
+- Regression tests cover changed recognition settings on resume (including restart), explicit save, persistence failure rollback, missing provider key validation, sub-page organization and provider-specific visibility.
+- No real recognition service was called and no user settings or notes were modified.
+
+## Previous real Obsidian host checks (3.1.0)
 
 The release implementation was loaded as a temporary in-memory diagnostic plugin inside the user's macOS Obsidian. It did not replace the installed plugin or edit user notes/settings.
 
@@ -22,7 +28,7 @@ The release implementation was loaded as a temporary in-memory diagnostic plugin
 
 - Source/bundle/license review: completed within the scope in REVIEW.md, with provenance limitations disclosed.
 - Fresh settings and legacy migration: automated fixtures pass. A new physical vault installation remains a user acceptance step; the personal vault has not been overwritten.
-- Accounts: QR/login parsing, cancellation, session expiry and account UI have fixture coverage; current live signed-in Bilibili check awaits login.
+- Accounts: QR/login parsing, cancellation, session expiry and account UI have fixture coverage. The user’s latest 3.1.1 screenshot shows Signed in; a fresh live subtitle import was not rerun for 3.1.2.
 - Community review/approval: not yet performed. No source comparison or test suite guarantees eligibility or universal platform access.
 
 The release can be reviewed as a submission candidate. The remaining live checks above must not be represented as completed.

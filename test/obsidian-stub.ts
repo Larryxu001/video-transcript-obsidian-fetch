@@ -24,20 +24,22 @@ class Control {
   onClick(callback: () => void) { this.click = callback; return this; }
   setCta() { return this; }
   setValue(_value: unknown) { return this; }
-  onChange(_callback: unknown) { return this; }
+  change: (value: any) => void = () => {};
+  onChange(callback: (value: any) => void) { this.change = callback; return this; }
   addOption(..._args: unknown[]) { return this; }
 }
 export class Setting {
   static rows: Setting[] = [];
+  controls: Control[] = [];
   name = ''; description = ''; buttons: Control[] = [];
   constructor(..._args: unknown[]) { Setting.rows.push(this); }
   setName(value: string) { this.name = value; return this; }
   setDesc(value: string) { this.description = value; return this; }
   setHeading() { return this; }
   addButton(callback: (button: Control) => void) { const c = new Control(); callback(c); this.buttons.push(c); return this; }
-  addText(callback: (field: Control) => void) { callback(new Control()); return this; }
-  addToggle(callback: (field: Control) => void) { callback(new Control()); return this; }
-  addDropdown(callback: (field: Control) => void) { callback(new Control()); return this; }
+  addText(callback: (field: Control) => void) { const c = new Control(); callback(c); this.controls.push(c); return this; }
+  addToggle(callback: (field: Control) => void) { const c = new Control(); callback(c); this.controls.push(c); return this; }
+  addDropdown(callback: (field: Control) => void) { const c = new Control(); callback(c); this.controls.push(c); return this; }
 }
 export class Plugin {
   manifest = { version: 'test' };

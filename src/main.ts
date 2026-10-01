@@ -37,9 +37,8 @@ export default class VideoTranscripts extends Plugin {
     this.addCommand({ id: 'fetch-youtube-transcript', name: 'Import video transcript', callback: () => this.importWindow() });
     this.addCommand({ id: 'fetch-youtube-transcript-from-clipboard', name: 'Import video transcripts from clipboard', callback: () => { void this.fromClipboard(); } });
     this.addCommand({ id: 'resume-import', name: 'Resume paused transcript import', callback: () => { void this.resume(); } });
-    this.addCommand({ id: 'discard-import', name: 'Discard saved import progress', callback: () => this.discard() });
-    this.addCommand({ id: 'cancel-import', name: 'Cancel transcript import', callback: () => this.job?.abort() });
-    this.addCommand({ id: 'diagnose-ai-captions', name: 'Diagnose video access without paid recognition', callback: () => this.importWindow(true) });
+    this.addCommand({ id: 'discard-import', name: 'Discard paused import', callback: () => this.discard() });
+    this.addCommand({ id: 'cancel-import', name: 'Pause transcript import', callback: () => this.job?.abort() });
     this.registerObsidianProtocolHandler('yt-transcript', params => {
       const raw = params.url || params.v;
       if (!raw) { new Notice('The link needs a video URL.'); return; }
@@ -59,8 +58,8 @@ export default class VideoTranscripts extends Plugin {
   private options(urls: string[]): ImportOptions {
     return { urls, createNote: this.settings.createNote, directory: this.settings.directory, language: this.settings.languages, includeUrl: this.settings.includeUrl, channelTag: this.settings.channelTag };
   }
-  private importWindow(diagnostic = false): void {
-    const modal = new ImportModal(this.app, this.settings, options => { void (diagnostic ? this.diagnose(options.urls[0]) : this.run(options)); },
+  private importWindow(): void {
+    const modal = new ImportModal(this.app, this.settings, options => { void this.run(options); },
       async (url, signal) => {
         const platforms = new Platforms(this.network.transport, this.settings.cookie, signal); const ref = await platforms.resolve(url);
         const video = await platforms.load(ref);
@@ -154,10 +153,10 @@ export default class VideoTranscripts extends Plugin {
   private async run(options: ImportOptions, resuming = false): Promise<void> {
     if (!this.enabled) return;
     if (this.job) { new Notice('An import is already running. Wait or cancel the current import.'); return; }
-    if (this.progress && !resuming) { new ResultModal(this.app, 'An import is paused', 'Resume the saved queue, or use Discard saved import progress before starting another.', () => { void this.resume(); }, 'Resume').open(); return; }
+    if (this.progress && !resuming) { new ResultModal(this.app, 'An import is paused', 'Resume the previous import first. To start a different video, open the command palette and choose Discard paused import.', () => { void this.resume(); }, 'Resume').open(); return; }
     const controller = new AbortController(); this.job = controller;
     const signal = controller.signal;
-    const settings = preferences({ ...(this.progress?.settings || this.settings), cookie: this.settings.cookie, groqKey: this.settings.groqKey, openaiKey: this.settings.openaiKey, directory: options.directory, includeUrl: options.includeUrl, channelTag: options.channelTag });
+    const settings = preferences({ ...(this.progress?.settings || this.settings), recognition: this.settings.recognition, provider: this.settings.provider, model: this.settings.model, cookie: this.settings.cookie, groqKey: this.settings.groqKey, openaiKey: this.settings.openaiKey, directory: options.directory, includeUrl: options.includeUrl, channelTag: options.channelTag });
     const view = this.app.workspace.getActiveViewOfType(MarkdownView);
     const originalPath = this.progress?.targetPath || view?.file?.path;
     const fallback = this.progress?.fallback ?? view?.file?.parent?.path ?? '';
@@ -230,19 +229,5 @@ export default class VideoTranscripts extends Plugin {
         }, error instanceof UncertainRecognition ? 'Retry uncertain chunks (may charge again)' : 'Resume').open();
       }
     } finally { notice.hide(); if (this.job === controller) this.job = undefined; }
-  }
-  private async diagnose(url: string): Promise<void> {
-    if (this.job) { new Notice('Wait for the current import to finish.'); return; }
-    this.job = new AbortController();
-    const signal = this.job.signal;
-    try {
-      const platforms = new Platforms(this.network.transport, this.settings.cookie, signal);
-      const ref = await platforms.resolve(url);
-      const video = await platforms.load(ref);
-      let result = `${video.ref.platform}: ${video.title}\nCaption tracks: ${video.tracks.length}\nCaption sign-in required: ${video.loginRequired ? 'yes' : 'no'}`;
-      if (!video.tracks.length) { const sources = await video.audio(); result += `\nAudio stream candidates: ${sources.length}`; }
-      if (!signal.aborted) new ResultModal(this.app, 'Video diagnostics', `${result}\nNo audio was sent to a recognition service.`).open();
-    } catch (error) { if (!signal.aborted) new Notice(error instanceof Error ? error.message : 'Video access failed.'); }
-    finally { this.job = undefined; }
   }
 }

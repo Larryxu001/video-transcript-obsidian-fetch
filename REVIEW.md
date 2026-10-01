@@ -1,4 +1,4 @@
-# Release review — 3.1.0
+# Release review — 3.1.2
 
 ## Scope and provenance
 
@@ -23,3 +23,12 @@ The only bundled third-party runtime library is MIT-licensed qrcode-generator 2.
 ## Publication boundary
 
 Release preparation is complete only after tests, lint, build and published CI pass. Real macOS evidence and remaining platform/environment limits are listed in ACCEPTANCE.md. Windows CI does not constitute a Windows desktop runtime test; mobile is explicitly unsupported. No automatic installation into the personal vault or directory submission is performed by a build.
+
+## 3.1.2 release-facing review
+
+- Native settings groups and declarative sub-pages keep common controls visible and advanced configuration searchable. Stored preference keys and existing command IDs are retained; the development-only diagnostic command is removed.
+- User-facing property labels no longer expose internal camelCase names. Technical field names remain editable only where they define actual note properties.
+- Provider-specific key visibility preserves both saved keys. Explicit save validates the selected provider and restores active values if persistence fails. Saving makes no paid request.
+- Internal client-attempt lists are removed from YouTube failures; actionable network/access guidance and typed challenge/rate-limit behavior remain.
+- Source scan found no console logging, debugger statements, eval, innerHTML writes, personal machine paths, TODO or FIXME markers in shipped source. Test fixtures and provenance records remain in the repository; they are not bundled as product UI.
+- Build/type checks, zero-warning lint and 113 tests pass locally. CI for this uncommitted candidate, clean-vault visual acceptance and directory review are still outstanding. This review is not a promise of approval or universal video availability.

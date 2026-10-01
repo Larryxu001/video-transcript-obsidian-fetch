@@ -1,10 +1,16 @@
 # Video Transcript Fetch
 
+Created by **Larry Xu**.
+
 Import YouTube and Bilibili transcripts into Obsidian notes. Read platform captions first, then optionally transcribe unavailable captions with Groq or OpenAI. Preserve the original speech: no automatic translation or summarization.
 
 Desktop only · Obsidian 1.13.0+ · MIT · Community directory submission candidate
 
 ## Use
+
+Common settings are on the main page. Open **Note properties** to choose video details, or **Advanced** for folder shortcuts, language overrides and recognition performance. Only the selected provider’s API key is shown.
+
+For speech recognition, set the switch, provider, API key and model, then click **Save and apply**. Saving does not test or charge the API. Resume a paused import after saving.
 
 1. Install the plugin and open **Settings → Video Transcript Fetch**.
 2. For Bilibili captions that require an account, choose **Sign in with QR code**, scan in the Bilibili app and confirm. A successful account check shows **Signed in**, your name and UID.
@@ -19,16 +25,16 @@ Use **Load languages** to select an existing platform track. The plugin never as
 - Videos run sequentially. Metadata requests share one lane with an 800 ms minimum interval; audio ranges use a separate lane of at most four requests. Default recognition concurrency is two chunks.
 - Successful metadata/caption responses are reused for up to two minutes in the current plugin session (up to 32 responses, at most 2 MB each). Expiring signed caption URLs expire sooner. Refused audio addresses can be refreshed.
 - HTTP 429 honors `Retry-After` (seconds or an HTTP date). Short waits have bounded retries; long/exhausted cooldowns pause the queue. YouTube bot verification stops the client ladder and pauses the batch immediately.
-- Use **Cancel transcript import** to pause. **Resume paused transcript import** continues the saved queue, including after an Obsidian restart. Completed videos and saved recognition chunks are not submitted again.
+- Use **Pause transcript import** to pause. **Resume paused transcript import** continues the saved queue, including after an Obsidian restart. Completed videos and saved recognition chunks are not submitted again.
 - A paid request is checkpointed **before** submission. If its result is unknown, the plugin requires **Retry uncertain chunks (may charge again)** before resubmitting. No client can guarantee that a provider did not charge for a response lost in transit.
 - Decoded, unfinished audio is reused within the session up to a 64 MB memory bound. It is not stored on disk; after restart, unfinished audio may need downloading again. Successful recognition text survives restart. Up to 100 video/configuration checkpoints are retained; older completed entries may be evicted.
-- Use **Discard saved import progress** to clear the queue and checkpoints explicitly. Existing notes remain. A later import can incur new recognition charges.
+- Use **Discard paused import** to clear the queue and checkpoints explicitly. Existing notes remain. A later import can incur new recognition charges.
 
 A node/IP change may restore access, but is not an automatic plugin feature. If YouTube requests verification, open the video in your browser, resolve access, then resume. Private, deleted, geographically restricted, account-gated and live videos may remain unavailable. Platform APIs are undocumented and can change; universal availability is not promised.
 
 ## Install before directory approval
 
-Download `main.js`, `manifest.json`, and `styles.css` from the [release](https://github.com/jackiexu001/video-transcript-fetch/releases). Put all three in:
+Download `main.js`, `manifest.json`, and `styles.css` from the [release](https://github.com/jackiexu001/video-transcript-obsidian-fetch/releases). Put all three in:
 
 ```text
 <Vault>/.obsidian/plugins/video-transcript-fetch/
