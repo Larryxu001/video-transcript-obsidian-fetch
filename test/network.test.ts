@@ -36,9 +36,11 @@ test('a long Retry-After pauses immediately instead of ignoring the service cool
 });
 test('cancelling a queued request releases its place without starting network work', async () => {
   let release!: () => void, calls = 0;
-  const net = new NetworkSession(async () => { calls++; await new Promise<void>(r => { release = r; }); return reply({}); }, 0);
+  let started!: () => void;
+  const ready = new Promise<void>(resolve => { started = resolve; });
+  const net = new NetworkSession(async () => { calls++; await new Promise<void>(r => { release = r; started(); }); return reply({}); }, 0);
   const first = net.transport({ url: 'https://www.youtube.com/watch?v=first' }, signal());
-  await new Promise(r => setTimeout(r, 5));
+  await ready;
   const controller = new AbortController(); const queued = net.transport({ url: 'https://www.youtube.com/watch?v=second' }, controller.signal);
   controller.abort(); await assert.rejects(queued); release(); await first; assert.equal(calls, 1);
 });
