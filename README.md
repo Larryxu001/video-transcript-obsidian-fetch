@@ -61,11 +61,11 @@ Settings, API keys and the Bilibili session are stored **unencrypted** in the va
 
 For issues, include plugin/Obsidian version, platform, a public video URL and the visible error. **Do not attach `data.json`, API keys, cookies or signed media URLs.**
 
-## 中文说明
+## Usage reminders
 
-优先抓取平台字幕，失败后才使用已启用的语音识别；只转写原话，不翻译、不总结。批量导入按顺序进行，遇到 YouTube 人机验证会暂停。使用命令面板的 **Resume paused transcript import** 恢复；已完成的视频和识别分片不会重复处理。识别结果不明的请求必须确认可能再次计费后才会重发。
+The plugin tries platform captions first and uses speech recognition only if caption retrieval fails and recognition is enabled. It transcribes the original speech without translating or summarizing it. Batch imports run sequentially and pause when YouTube requests bot verification. Use **Resume paused transcript import** in the command palette to continue; completed videos and recognition chunks are not processed again. Requests with an unknown recognition outcome are resent only after you confirm that they may incur another charge.
 
-升级时保留原插件目录里的 `data.json`，否则登录和进度不会出现在新目录中。请勿把该文件发到 GitHub。
+When upgrading, keep `data.json` in the original plugin directory; otherwise, your sign-in state and progress will not appear in the new directory. Do not upload this file to GitHub.
 
 ## Development and review
 
